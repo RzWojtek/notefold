@@ -57,9 +57,31 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ─── SERVICE WORKER ──────────────────────────────────────────────────────────
 function registerServiceWorker() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  }
+  if (!('serviceWorker' in navigator)) return;
+
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    // Sprawdzaj aktualizacje co 60 sekund
+    setInterval(() => reg.update(), 60000);
+
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        // Nowy SW gotowy + stary aktywny → odśwież stronę automatycznie
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          newWorker.postMessage('skipWaiting');
+        }
+      });
+    });
+  }).catch(() => {});
+
+  // Gdy nowy SW przejmie kontrolę → przeładuj stronę (raz)
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
 }
 
 // ─── AUTH ────────────────────────────────────────────────────────────────────
