@@ -307,6 +307,12 @@ function initEventListeners() {
   // Export/Import
   document.getElementById('export-btn').addEventListener('click', exportNotes);
   document.getElementById('import-input').addEventListener('change', importNotes);
+
+  // Context menu — zamknij po kliknięciu gdziekolwiek
+  document.addEventListener('click', e => {
+    const menu = document.getElementById('context-menu');
+    if (menu && !menu.contains(e.target)) hideContextMenu();
+  });
 }
 
 // ─── AUTH ACTIONS ─────────────────────────────────────────────────────────────
@@ -390,8 +396,7 @@ function renderFolders() {
   row.innerHTML = '';
 
   // "Wszystkie" chip
-  const allChip = makeChip('Wszystkie', 'all', notes.length, NOTE_COLORS[0].value);
-  row.appendChild(allChip);
+  row.appendChild(makeChip('Wszystkie', 'all', notes.length, NOTE_COLORS[0].value));
 
   folders.forEach(f => {
     const count = notes.filter(n => n.folderId === f.id).length;
@@ -400,6 +405,9 @@ function renderFolders() {
 }
 
 function makeChip(name, id, count, color) {
+  const wrap = document.createElement('div');
+  wrap.className = 'folder-chip-wrap';
+
   const btn = document.createElement('button');
   btn.className = 'folder-chip' + (currentFolder === id ? ' active' : '');
   btn.dataset.folder = id;
@@ -411,7 +419,22 @@ function makeChip(name, id, count, color) {
     btn.classList.add('active');
     renderNotes();
   });
-  return btn;
+  wrap.appendChild(btn);
+
+  // Przycisk usuwania folderu (tylko dla prawdziwych folderów, nie "all")
+  if (id !== 'all') {
+    const del = document.createElement('button');
+    del.className = 'folder-delete-btn';
+    del.title = 'Usuń folder';
+    del.textContent = '×';
+    del.addEventListener('click', e => {
+      e.stopPropagation();
+      deleteFolder(id);
+    });
+    wrap.appendChild(del);
+  }
+
+  return wrap;
 }
 
 function updateEditorFolders() {
@@ -613,6 +636,20 @@ function buildNoteCard(note) {
   card.appendChild(left);
   card.appendChild(right);
 
+  // Long-press i right-click → context menu
+  let pressTimer;
+  card.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    showNoteContextMenu(e.clientX, e.clientY, note);
+  });
+  card.addEventListener('touchstart', e => {
+    pressTimer = setTimeout(() => showNoteContextMenu(
+      e.touches[0].clientX, e.touches[0].clientY, note
+    ), 600);
+  }, { passive: true });
+  card.addEventListener('touchend', () => clearTimeout(pressTimer));
+  card.addEventListener('touchmove', () => clearTimeout(pressTimer));
+
   // Click handler
   card.addEventListener('click', () => {
     if (multiSelectMode) {
@@ -765,6 +802,56 @@ async function toggleStar(id, val) {
 async function deleteNote(id) {
   await notesRef.doc(id).delete();
   showToast('🗑️ Notatka usunięta');
+}
+
+async function deleteFolder(id) {
+  if (!confirm('Usunąć folder? Notatki w nim pozostaną (bez przypisania).')) return;
+  await foldersRef.doc(id).delete();
+  // Odepnij notatki z tego folderu
+  const batch = db.batch();
+  notes.filter(n => n.folderId === id).forEach(n => {
+    batch.update(notesRef.doc(n.id), { folderId: '' });
+  });
+  await batch.commit();
+  if (currentFolder === id) currentFolder = 'all';
+  showToast('🗑️ Folder usunięty');
+}
+
+// ─── CONTEXT MENU ────────────────────────────────────────────────────────────
+function showNoteContextMenu(x, y, note) {
+  hideContextMenu();
+  const menu = document.createElement('div');
+  menu.id = 'context-menu';
+  menu.className = 'context-menu';
+
+  const items = [
+    { icon: '✏️', label: 'Edytuj', action: () => { openEditNote(note); hideContextMenu(); } },
+    { icon: '🗑️', label: 'Usuń notatkę', action: () => { hideContextMenu(); confirmDeleteNote(note.id); }, danger: true },
+  ];
+
+  items.forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = 'context-menu-item' + (item.danger ? ' danger' : '');
+    btn.innerHTML = `<span>${item.icon}</span> ${item.label}`;
+    btn.addEventListener('click', item.action);
+    menu.appendChild(btn);
+  });
+
+  // Pozycjonowanie — nie wychodź poza ekran
+  document.body.appendChild(menu);
+  const rect = menu.getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight;
+  menu.style.left = Math.min(x, vw - rect.width - 8) + 'px';
+  menu.style.top  = Math.min(y, vh - rect.height - 8) + 'px';
+}
+
+function hideContextMenu() {
+  const menu = document.getElementById('context-menu');
+  if (menu) menu.remove();
+}
+
+function confirmDeleteNote(id) {
+  if (confirm('Usunąć tę notatkę?')) deleteNote(id);
 }
 
 async function deleteSelectedNotes() {

@@ -1007,3 +1007,53 @@ button { cursor: pointer; font-family: var(--font-body); }
   :root { --sidebar-w: 260px; }
   .notes-container.view-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 }
+
+/* =========================================
+   CONTEXT MENU
+   ========================================= */
+.context-menu {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  min-width: 160px;
+  display: flex; flex-direction: column; gap: 2px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+}
+.context-menu::after {
+  content: '';
+  position: absolute; top: 0; right: 0;
+  width: 12px; height: 12px;
+  background: linear-gradient(225deg, var(--fold-dark) 50%, transparent 50%);
+}
+.context-menu-item {
+  display: flex; align-items: center; gap: 10px;
+  background: none; border: none; border-radius: 8px;
+  padding: 10px 14px; font-size: 14px; font-weight: 500;
+  color: var(--text); font-family: var(--font-body);
+  text-align: left; cursor: pointer; transition: background 0.1s;
+}
+.context-menu-item:hover { background: var(--surface2); }
+.context-menu-item.danger { color: var(--danger); }
+.context-menu-item.danger:hover { background: rgba(192,57,43,0.08); }
+
+/* =========================================
+   FOLDER CHIP WRAP + DELETE BUTTON
+   ========================================= */
+.folder-chip-wrap {
+  display: flex; align-items: center; gap: 4px;
+  flex-shrink: 0;
+}
+.folder-delete-btn {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--bg); border: none;
+  font-size: 15px; line-height: 1;
+  color: var(--text-muted);
+  box-shadow: var(--shadow-sm);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: all 0.12s;
+}
+.folder-delete-btn:hover { background: var(--danger); color: #fff; box-shadow: var(--shadow-sm); }
