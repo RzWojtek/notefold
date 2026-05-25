@@ -166,7 +166,9 @@ function initEventListeners() {
   document.getElementById('google-login-btn').addEventListener('click', googleLogin);
 
   // FAB
-  // fab handled below // document.getElementById('fab-btn').addEventListener('click', openNewNote);
+  // FAB — desktop + mobile
+  document.getElementById('fab-btn-desktop')?.addEventListener('click', openNewNote);
+  document.getElementById('fab-btn-mobile')?.addEventListener('click', openNewNote);
 
   // Bottom nav
   document.querySelectorAll('.nav-item[data-nav]').forEach(btn => {
