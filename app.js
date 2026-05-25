@@ -991,38 +991,100 @@ function stopRecording() {
   recognition.stop();
 }
 
-// ─── PHOTO UPLOAD (CLOUDINARY) ───────────────────────────────────────────────
+// ─── PHOTO UPLOAD ────────────────────────────────────────────────────────────
+// Jeśli Cloudinary skonfigurowany → upload do chmury
+// Jeśli nie → zapis lokalnie jako Base64 (działa zawsze)
 async function handlePhotoUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
 
+  // Sprawdź rozmiar — max 5MB
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('❌ Zdjęcie za duże (max 5MB)');
+    e.target.value = '';
+    return;
+  }
+
   document.getElementById('photo-uploading').classList.remove('hidden');
+  document.getElementById('photo-uploading').textContent = 'Przesyłanie…';
+
+  const cloudinaryOk = CLOUDINARY_CLOUD_NAME && CLOUDINARY_CLOUD_NAME !== 'TWOJ_CLOUD_NAME';
 
   try {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    let url;
 
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-      method: 'POST',
-      body: formData
-    });
-    const data = await res.json();
+    if (cloudinaryOk) {
+      // ── Cloudinary upload ──────────────────────────────
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
 
-    if (data.secure_url) {
-      const img = document.createElement('img');
-      img.src = data.secure_url;
-      document.getElementById('photo-preview').appendChild(img);
-      showToast('📷 Zdjęcie przesłane');
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+      console.log('Cloudinary URL:', uploadUrl);
+      console.log('Cloud name:', CLOUDINARY_CLOUD_NAME);
+      console.log('Preset:', CLOUDINARY_UPLOAD_PRESET);
+      console.log('File:', file.name, file.size, file.type);
+
+      const res = await fetch(uploadUrl, { method: 'POST', body: formData });
+      const data = await res.json();
+      console.log('Cloudinary response:', res.status, data);
+      if (!res.ok || !data.secure_url) {
+        const msg = data.error?.message || ('HTTP ' + res.status);
+        throw new Error(msg);
+      }
+      url = data.secure_url;
+      showToast('📷 Zdjęcie przesłane do Cloudinary');
     } else {
-      showToast('Błąd przesyłania zdjęcia');
+      // ── Fallback: Base64 w przeglądarce ───────────────
+      // Zmniejsz zdjęcie przed zapisem
+      url = await resizeToBase64(file, 800);
+      showToast('📷 Zdjęcie dodane (lokalnie)');
     }
+
+    const img = document.createElement('img');
+    img.src = url;
+    document.getElementById('photo-preview').appendChild(img);
+
   } catch (err) {
-    showToast('Błąd: ' + err.message);
+    console.error('Photo upload error:', err);
+    showToast('❌ Cloudinary: ' + err.message);
+    // Fallback — Base64
+    try {
+      const url = await resizeToBase64(file, 800);
+      const img = document.createElement('img');
+      img.src = url;
+      document.getElementById('photo-preview').appendChild(img);
+      showToast('📷 Zapisano lokalnie (sprawdź Cloudinary preset)');
+    } catch (e2) {
+      showToast('❌ Nie udało się dodać zdjęcia');
+    }
   } finally {
     document.getElementById('photo-uploading').classList.add('hidden');
     e.target.value = '';
   }
+}
+
+// Zmniejsza zdjęcie i zwraca Base64 (max szerokość px)
+function resizeToBase64(file, maxWidth) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxWidth / img.width);
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = reject;
+      img.src = ev.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 // ─── CALENDAR ─────────────────────────────────────────────────────────────────
