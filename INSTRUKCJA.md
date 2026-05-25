@@ -282,7 +282,7 @@ Zapisz plik i wgraj go na GitHub (zastąp stary plik).
 - Na górze pliku znajdź te dwie linie:
 
 ```javascript
-const CLOUDINARY_CLOUD_NAME = 'TWOJ_CLOUD_NAME';
+const CLOUDINARY_CLOUD_NAME = 'dfahpxrrv';
 const CLOUDINARY_UPLOAD_PRESET = 'notefold_preset';
 ```
 
