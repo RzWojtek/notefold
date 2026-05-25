@@ -7,7 +7,7 @@
 
 // ─── KONFIGURACJA CLOUDINARY ──────────────────────────────────────────────────
 // UZUPEŁNIJ te dane po założeniu konta Cloudinary
-const CLOUDINARY_CLOUD_NAME = 'TWOJ_CLOUD_NAME';
+const CLOUDINARY_CLOUD_NAME = 'dfahpxrrv';
 const CLOUDINARY_UPLOAD_PRESET = 'notefold_preset';
 
 // ─── KOLORY DO NOTATEK / FOLDERÓW ────────────────────────────────────────────
