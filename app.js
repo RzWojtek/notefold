@@ -581,6 +581,18 @@ function buildNoteCard(note) {
     right.appendChild(badge);
   }
 
+  // Folder tag
+  if (note.folderId) {
+    const folder = folders.find(f => f.id === note.folderId);
+    if (folder) {
+      const tag = document.createElement('span');
+      tag.className = 'note-folder-tag';
+      tag.style.background = folder.color || 'var(--bg)';
+      tag.textContent = '📁 ' + folder.name;
+      right.appendChild(tag);
+    }
+  }
+
   if (note.color && note.color !== NOTE_COLORS[0].value) {
     const dot = document.createElement('div');
     dot.className = 'color-dot';
