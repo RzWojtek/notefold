@@ -7,7 +7,7 @@
 
 // ─── KONFIGURACJA CLOUDINARY ──────────────────────────────────────────────────
 // UZUPEŁNIJ te dane po założeniu konta Cloudinary
-const CLOUDINARY_CLOUD_NAME = 'dfahpxrrv';
+const CLOUDINARY_CLOUD_NAME = 'TWOJ_CLOUD_NAME';
 const CLOUDINARY_UPLOAD_PRESET = 'notefold_preset';
 
 // ─── KOLORY DO NOTATEK / FOLDERÓW ────────────────────────────────────────────
@@ -103,6 +103,12 @@ function updateUserUI() {
   document.getElementById('user-name').textContent = name;
   document.getElementById('user-email').textContent = email;
   document.getElementById('user-avatar').textContent = initials;
+  const sideAvatar = document.getElementById('sidebar-user-avatar');
+  if (sideAvatar) sideAvatar.textContent = initials;
+  const sideName = document.getElementById('sidebar-user-name');
+  if (sideName) sideName.textContent = name;
+  const sideEmail = document.getElementById('sidebar-user-email');
+  if (sideEmail) sideEmail.textContent = email;
   document.getElementById('user-modal-name').textContent = name;
   document.getElementById('user-modal-email').textContent = email;
 
@@ -138,18 +144,26 @@ function initEventListeners() {
   document.getElementById('google-login-btn').addEventListener('click', googleLogin);
 
   // FAB
-  document.getElementById('fab-btn').addEventListener('click', openNewNote);
+  // fab handled below // document.getElementById('fab-btn').addEventListener('click', openNewNote);
 
   // Bottom nav
   document.querySelectorAll('.nav-item[data-nav]').forEach(btn => {
     btn.addEventListener('click', () => navigateTo(btn.dataset.nav));
   });
 
-  // Sidebar
+  // Sidebar desktop nav
+  document.querySelectorAll('.sidebar-nav-item[data-nav]').forEach(btn => {
+    btn.addEventListener('click', () => navigateTo(btn.dataset.nav));
+  });
+  // Sidebar desktop user
+  document.getElementById('sidebar-user-btn')?.addEventListener('click', () => {
+    document.getElementById('user-modal-overlay').classList.remove('hidden');
+  });
+  // Mobile drawer
   document.getElementById('menu-btn').addEventListener('click', openSidebar);
   document.getElementById('sidebar-close').addEventListener('click', closeSidebar);
   document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
-  document.querySelectorAll('.sidebar-item[data-nav]').forEach(btn => {
+  document.querySelectorAll('.sidebar-drawer-item[data-nav]').forEach(btn => {
     btn.addEventListener('click', () => { navigateTo(btn.dataset.nav); closeSidebar(); });
   });
 
@@ -297,6 +311,7 @@ function logout() {
 function navigateTo(nav) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav-item').forEach(n => n.classList.remove('active'));
 
   const viewMap = { notes: 'view-notes', calendar: 'view-calendar', settings: 'view-settings' };
   const view = document.getElementById(viewMap[nav]);
@@ -304,6 +319,8 @@ function navigateTo(nav) {
 
   const navBtn = document.querySelector(`.nav-item[data-nav="${nav}"]`);
   if (navBtn) navBtn.classList.add('active');
+  const sideNavBtn = document.querySelector(`.sidebar-nav-item[data-nav="${nav}"]`);
+  if (sideNavBtn) sideNavBtn.classList.add('active');
 
   document.getElementById('topbar-title').textContent = {
     notes: 'Moje notatki', calendar: 'Kalendarz', settings: 'Ustawienia'
@@ -313,15 +330,17 @@ function navigateTo(nav) {
 }
 
 function openSidebar() {
-  document.getElementById('sidebar').classList.remove('hidden');
-  document.getElementById('sidebar-overlay').classList.remove('hidden');
-  setTimeout(() => document.getElementById('sidebar').classList.add('open'), 10);
+  const drawer = document.getElementById('sidebar-drawer');
+  const overlay = document.getElementById('sidebar-overlay');
+  drawer.classList.add('open');
+  overlay.style.display = 'block';
 }
 
 function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.add('hidden');
-  setTimeout(() => document.getElementById('sidebar').classList.add('hidden'), 260);
+  const drawer = document.getElementById('sidebar-drawer');
+  const overlay = document.getElementById('sidebar-overlay');
+  drawer.classList.remove('open');
+  overlay.style.display = 'none';
 }
 
 // ─── COLOR PICKERS ────────────────────────────────────────────────────────────
