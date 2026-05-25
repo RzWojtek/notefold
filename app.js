@@ -145,19 +145,21 @@ function updateUserUI() {
 
 // ─── FIRESTORE LOAD ───────────────────────────────────────────────────────────
 function loadData() {
-  // Real-time listener na notatki
+  // Najpierw załaduj foldery, potem notatki — żeby tagi folderów były widoczne od razu
+  foldersRef.orderBy('createdAt', 'asc').onSnapshot(snap => {
+    folders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    updateEditorFolders();
+    // Przerenderuj notatki żeby pokazały aktualne tagi folderów
+    if (notes.length > 0) renderNotes();
+    renderFolders();
+  });
+
+  // Listener na notatki — uruchamia się po folderach dzięki kolejności
   notesRef.orderBy('createdAt', 'desc').onSnapshot(snap => {
     notes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderNotes();
-    renderFolders();   // odśwież liczniki przy każdej zmianie notatek
-    renderCalendar();
-  });
-
-  // Real-time listener na foldery
-  foldersRef.orderBy('createdAt', 'asc').onSnapshot(snap => {
-    folders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderFolders();
-    updateEditorFolders();
+    renderCalendar();
   });
 }
 
@@ -336,7 +338,7 @@ function navigateTo(nav) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.querySelectorAll('.sidebar-nav-item').forEach(n => n.classList.remove('active'));
 
-  const viewMap = { notes: 'view-notes', calendar: 'view-calendar', settings: 'view-settings' };
+  const viewMap = { notes: 'view-notes', calendar: 'view-calendar', gallery: 'view-gallery', settings: 'view-settings' };
   const view = document.getElementById(viewMap[nav]);
   if (view) view.classList.add('active');
 
@@ -346,10 +348,11 @@ function navigateTo(nav) {
   if (sideNavBtn) sideNavBtn.classList.add('active');
 
   document.getElementById('topbar-title').textContent = {
-    notes: 'Moje notatki', calendar: 'Kalendarz', settings: 'Ustawienia'
+    notes: 'Moje notatki', calendar: 'Kalendarz', gallery: 'Galeria', settings: 'Ustawienia'
   }[nav] || '';
 
   if (nav === 'calendar') renderCalendar();
+  if (nav === 'gallery') renderGallery();
 }
 
 function openSidebar() {
@@ -1110,6 +1113,79 @@ function renderCalendarNotes(year, month, day) {
     const card = buildNoteCard(note);
     container.appendChild(card);
   });
+}
+
+// ─── GALLERY ─────────────────────────────────────────────────────────────────
+function renderGallery() {
+  const container = document.getElementById('gallery-container');
+  const empty = document.getElementById('gallery-empty');
+  if (!container) return;
+
+  // Zbierz wszystkie zdjęcia ze wszystkich notatek
+  const photoNotes = notes.filter(n => n.type === 'photo' && n.photos && n.photos.length > 0);
+
+  // Usuń stare karty (zostaw empty state)
+  [...container.children].forEach(child => {
+    if (child.id !== 'gallery-empty') child.remove();
+  });
+
+  if (photoNotes.length === 0) {
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  photoNotes.forEach(note => {
+    const noteFolder = folders.find(f => f.id === note.folderId);
+    const dateStr = note.createdAt
+      ? (note.createdAt.toDate ? note.createdAt.toDate() : new Date(note.createdAt)).toLocaleDateString('pl-PL')
+      : '';
+
+    note.photos.forEach(url => {
+      const card = document.createElement('div');
+      card.className = 'gallery-card';
+
+      const img = document.createElement('img');
+      img.src = url;
+      img.className = 'gallery-img';
+      img.alt = note.title || 'Zdjęcie';
+      img.addEventListener('click', () => openLightbox(url));
+
+      const info = document.createElement('div');
+      info.className = 'gallery-info';
+      info.innerHTML = `
+        <div class="gallery-note-title">${note.title || 'Bez tytułu'}</div>
+        <div class="gallery-meta">
+          ${noteFolder ? `<span class="gallery-folder">📁 ${noteFolder.name}</span>` : ''}
+          <span class="gallery-date">${dateStr}</span>
+        </div>
+      `;
+
+      const editBtn = document.createElement('button');
+      editBtn.className = 'gallery-edit-btn';
+      editBtn.textContent = '✏️ Otwórz notatkę';
+      editBtn.addEventListener('click', () => openEditNote(note));
+
+      card.appendChild(img);
+      card.appendChild(info);
+      card.appendChild(editBtn);
+      container.appendChild(card);
+    });
+  });
+}
+
+function openLightbox(url) {
+  const lb = document.createElement('div');
+  lb.id = 'lightbox';
+  lb.className = 'lightbox';
+  lb.innerHTML = `
+    <div class="lightbox-bg"></div>
+    <img src="${url}" class="lightbox-img" alt="Podgląd"/>
+    <button class="lightbox-close">✕</button>
+  `;
+  lb.querySelector('.lightbox-bg').addEventListener('click', () => lb.remove());
+  lb.querySelector('.lightbox-close').addEventListener('click', () => lb.remove());
+  document.body.appendChild(lb);
 }
 
 // ─── EXPORT / IMPORT ──────────────────────────────────────────────────────────
