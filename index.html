@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#e8e4dc"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="NoteFold"/>
+  <title>NoteFold</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
+  <link rel="icon" href="icons/icon-192.png"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="login-screen" class="login-screen hidden">
+  <div class="login-card">
+    <div class="login-logo">📋</div>
+    <h1>NoteFold</h1>
+    <p>Twoje notatki zawsze pod ręką</p>
+    <button id="google-login-btn" class="google-btn">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Zaloguj się przez Google
+    </button>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app" class="app hidden">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <button class="icon-round" id="menu-btn" aria-label="Menu">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="topbar-title" id="topbar-title">Moje notatki</div>
+    <button class="icon-round" id="user-btn" aria-label="Profil">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    </button>
+  </div>
+
+  <!-- VIEWS CONTAINER -->
+  <div class="views">
+
+    <!-- ===== VIEW: NOTES ===== -->
+    <div id="view-notes" class="view active">
+      <div class="view-header">
+        <h1>Moje notatki</h1>
+        <div class="header-actions">
+          <button class="pill-btn" id="filter-date-btn">
+            Wszystkie
+            <svg viewBox="0 0 24 24" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="view-toggle">
+            <button class="view-btn active" data-view="list" aria-label="Lista"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+            <button class="view-btn" data-view="grid" aria-label="Siatka"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+            <button class="view-btn" data-view="details" aria-label="Szczegóły"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="5" cy="12" r="1"/><circle cx="5" cy="18" r="1"/></svg></button>
+          </div>
+        </div>
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="search-input" placeholder="Szukaj w notatkach…"/>
+          <button id="search-clear" class="hidden">✕</button>
+        </div>
+        <div class="sort-row">
+          <span class="sort-label">Sortuj:</span>
+          <button class="sort-btn active" data-sort="date">Data</button>
+          <button class="sort-btn" data-sort="color">Kolor</button>
+          <button class="sort-btn" data-sort="title">Nazwa</button>
+          <button class="multi-select-btn" id="multi-select-btn">Zaznacz</button>
+        </div>
+        <div id="multi-bar" class="multi-bar hidden">
+          <span id="multi-count">0 zaznaczonych</span>
+          <button id="multi-delete-btn" class="danger-btn">Usuń zaznaczone</button>
+          <button id="multi-cancel-btn">Anuluj</button>
+        </div>
+      </div>
+
+      <!-- FOLDERS ROW -->
+      <div class="folders-section">
+        <div class="folders-scroll" id="folders-row">
+          <button class="folder-chip active" data-folder="all">Wszystkie</button>
+        </div>
+        <button class="folder-add-btn" id="folder-add-btn" aria-label="Dodaj folder">+</button>
+      </div>
+
+      <!-- NOTES LIST -->
+      <div class="notes-container" id="notes-container">
+        <div class="empty-state" id="empty-state">
+          <div class="empty-icon">📋</div>
+          <p>Brak notatek.<br/>Kliknij + aby dodać pierwszą.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== VIEW: CALENDAR ===== -->
+    <div id="view-calendar" class="view">
+      <div class="view-header">
+        <h1>Kalendarz</h1>
+      </div>
+      <div class="calendar-wrap" id="calendar-wrap"></div>
+      <div class="calendar-notes" id="calendar-notes"></div>
+    </div>
+
+    <!-- ===== VIEW: SETTINGS ===== -->
+    <div id="view-settings" class="view">
+      <div class="view-header">
+        <h1>Ustawienia</h1>
+      </div>
+      <div class="settings-list">
+        <div class="settings-section">
+          <div class="settings-label">Konto</div>
+          <div class="settings-item" id="user-info-row">
+            <div class="user-avatar" id="user-avatar">?</div>
+            <div>
+              <div class="settings-item-title" id="user-name">—</div>
+              <div class="settings-item-sub" id="user-email">—</div>
+            </div>
+          </div>
+          <button class="settings-item danger" id="logout-btn">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Wyloguj się
+          </button>
+        </div>
+        <div class="settings-section">
+          <div class="settings-label">Dane</div>
+          <button class="settings-item" id="export-btn">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Eksportuj notatki (JSON)
+          </button>
+          <label class="settings-item" id="import-label">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Importuj notatki (JSON)
+            <input type="file" id="import-input" accept=".json" class="hidden"/>
+          </label>
+        </div>
+        <div class="settings-section">
+          <div class="settings-label">Aplikacja</div>
+          <div class="settings-item">
+            <svg viewBox="0 0 24 24" width="18" height="18"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+            Wersja 1.0.0
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /views -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottomnav">
+    <button class="nav-item active" data-nav="notes">
+      <div class="nav-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <span>Notatki</span>
+    </button>
+    <button class="nav-item" data-nav="calendar">
+      <div class="nav-icon-wrap">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <span>Kalendarz</span>
+    </button>
+    <div class="nav-fab-wrap">
+      <button class="fab" id="fab-btn" aria-label="Dodaj notatkę">
+        <svg viewBox="0 0 24 24" width="28" height="28"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+    <button class="nav-item" data-nav="settings">
+      <div class="nav-icon-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+      <span>Ustawienia</span>
+    </button>
+  </div>
+
+</div><!-- /app -->
+
+<!-- ===== SIDEBAR MENU ===== -->
+<div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
+<div id="sidebar" class="sidebar hidden">
+  <div class="sidebar-header">
+    <span>NoteFold</span>
+    <button id="sidebar-close">✕</button>
+  </div>
+  <div class="sidebar-menu">
+    <button class="sidebar-item" data-nav="notes"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Notatki</button>
+    <button class="sidebar-item" data-nav="calendar"><svg viewBox="0 0 24 24" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Kalendarz</button>
+    <button class="sidebar-item" data-nav="settings"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="3"/></svg> Ustawienia</button>
+  </div>
+</div>
+
+<!-- ===== NOTE EDITOR MODAL ===== -->
+<div id="editor-overlay" class="modal-overlay hidden">
+  <div class="editor-modal">
+    <div class="editor-topbar">
+      <button id="editor-close" class="icon-round-sm">✕</button>
+      <span id="editor-title-label">Nowa notatka</span>
+      <button id="editor-save" class="save-btn">Zapisz</button>
+    </div>
+
+    <!-- TYPE SELECTOR -->
+    <div class="type-selector">
+      <button class="type-btn active" data-type="note">📄 Notatka</button>
+      <button class="type-btn" data-type="todo">☑️ TODO</button>
+      <button class="type-btn" data-type="voice">🎙️ Głosowa</button>
+      <button class="type-btn" data-type="photo">📷 Zdjęcie</button>
+    </div>
+
+    <!-- NOTE TITLE -->
+    <input type="text" id="editor-note-title" class="editor-note-title" placeholder="Tytuł notatki…"/>
+
+    <!-- FORMAT TOOLBAR -->
+    <div class="format-toolbar" id="format-toolbar">
+      <button class="fmt-btn" data-cmd="bold" title="Pogrubienie"><b>B</b></button>
+      <button class="fmt-btn" data-cmd="italic" title="Kursywa"><i>I</i></button>
+      <button class="fmt-btn" data-cmd="underline" title="Podkreślenie"><u>U</u></button>
+      <div class="fmt-sep"></div>
+      <select id="font-size-select" class="fmt-select" title="Rozmiar czcionki">
+        <option value="12px">12</option>
+        <option value="14px" selected>14</option>
+        <option value="16px">16</option>
+        <option value="18px">18</option>
+        <option value="22px">22</option>
+        <option value="28px">28</option>
+      </select>
+      <div class="fmt-sep"></div>
+      <label class="fmt-color-wrap" title="Kolor czcionki">
+        <span>A</span>
+        <input type="color" id="font-color-input" value="#2a2826"/>
+      </label>
+    </div>
+
+    <!-- NOTE CONTENT PANELS -->
+    <div id="panel-note" class="editor-panel active">
+      <div id="editor-content" class="editor-content" contenteditable="true" data-placeholder="Treść notatki…"></div>
+    </div>
+
+    <div id="panel-todo" class="editor-panel">
+      <div id="todo-list" class="todo-list"></div>
+      <button id="todo-add-btn" class="todo-add-btn">+ Dodaj pozycję</button>
+    </div>
+
+    <div id="panel-voice" class="editor-panel">
+      <div class="voice-section">
+        <button id="voice-record-btn" class="voice-btn">
+          <svg viewBox="0 0 24 24" width="32" height="32"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span id="voice-btn-label">Nagraj</span>
+        </button>
+        <div id="voice-status" class="voice-status"></div>
+        <div id="voice-transcript" class="voice-transcript"></div>
+      </div>
+    </div>
+
+    <div id="panel-photo" class="editor-panel">
+      <div class="photo-section">
+        <div class="photo-preview" id="photo-preview"></div>
+        <label class="photo-upload-btn">
+          <svg viewBox="0 0 24 24" width="24" height="24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Wybierz zdjęcie
+          <input type="file" id="photo-input" accept="image/*" class="hidden"/>
+        </label>
+        <div id="photo-uploading" class="hidden">Przesyłanie…</div>
+      </div>
+    </div>
+
+    <!-- META OPTIONS -->
+    <div class="editor-meta">
+      <div class="meta-row">
+        <label class="meta-label">📁 Folder:</label>
+        <select id="editor-folder-select" class="meta-select"></select>
+      </div>
+      <div class="meta-row">
+        <label class="meta-label">🎨 Kolor notatki:</label>
+        <div class="color-picker" id="note-color-picker"></div>
+      </div>
+      <div class="meta-row">
+        <label class="meta-label">📅 Data:</label>
+        <input type="datetime-local" id="editor-date" class="meta-input"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOLDER MODAL ===== -->
+<div id="folder-modal-overlay" class="modal-overlay hidden">
+  <div class="small-modal">
+    <div class="small-modal-header">
+      <span>Nowy folder</span>
+      <button id="folder-modal-close">✕</button>
+    </div>
+    <input type="text" id="folder-name-input" class="modal-input" placeholder="Nazwa folderu…"/>
+    <div class="meta-row">
+      <label class="meta-label">Kolor:</label>
+      <div class="color-picker" id="folder-color-picker"></div>
+    </div>
+    <button id="folder-save-btn" class="save-btn" style="width:100%;margin-top:12px">Zapisz folder</button>
+  </div>
+</div>
+
+<!-- ===== USER MODAL ===== -->
+<div id="user-modal-overlay" class="modal-overlay hidden">
+  <div class="small-modal">
+    <div class="small-modal-header">
+      <span>Profil</span>
+      <button id="user-modal-close">✕</button>
+    </div>
+    <div class="user-profile-card">
+      <img id="user-photo" src="" alt="Avatar" class="user-photo"/>
+      <div id="user-modal-name" class="user-modal-name">—</div>
+      <div id="user-modal-email" class="user-modal-email">—</div>
+    </div>
+    <button id="user-logout-btn" class="danger-btn" style="width:100%;margin-top:16px">Wyloguj się</button>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
