@@ -1159,3 +1159,16 @@ button { cursor: pointer; font-family: var(--font-body); }
     gap: 10px;
   }
 }
+
+/* Trzy kropki na karcie notatki */
+.note-menu-btn {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.note-card:hover .note-menu-btn {
+  opacity: 1;
+}
+/* Na mobile zawsze widoczny (brak hover) */
+@media (max-width: 768px) {
+  .note-menu-btn { opacity: 1; }
+}

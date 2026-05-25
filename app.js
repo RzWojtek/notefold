@@ -627,6 +627,18 @@ function buildNoteCard(note) {
     right.appendChild(dot);
   }
 
+  // Przycisk menu ⋯ — widoczny zawsze
+  const menuBtn = document.createElement('button');
+  menuBtn.className = 'icon-btn note-menu-btn';
+  menuBtn.title = 'Opcje';
+  menuBtn.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="19" r="1.5" fill="currentColor"/></svg>`;
+  menuBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const r = menuBtn.getBoundingClientRect();
+    showNoteContextMenu(r.left, r.bottom + 4, note);
+  });
+  right.appendChild(menuBtn);
+
   const starBtn = document.createElement('button');
   starBtn.className = 'icon-btn';
   starBtn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="${note.starred ? '#e6b800' : 'none'}" stroke="${note.starred ? '#e6b800' : 'currentColor'}"/></svg>`;
