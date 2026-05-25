@@ -564,7 +564,8 @@ button { cursor: pointer; font-family: var(--font-body); }
   background: rgba(180,176,168,0.65);
   backdrop-filter: blur(3px);
   z-index: 200;
-  display: flex; align-items: flex-end; justify-content: center;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
 }
 
 /* =========================================
@@ -572,22 +573,29 @@ button { cursor: pointer; font-family: var(--font-body); }
    ========================================= */
 .editor-modal {
   background: var(--bg);
-  border-radius: 28px 28px 0 0;
+  border-radius: var(--radius-lg);
   width: 100%; max-width: 640px;
-  max-height: 92vh;
+  max-height: 88vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   display: flex; flex-direction: column;
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+  box-shadow: var(--shadow-lg);
   position: relative;
-  clip-path: polygon(var(--fold-size) 0, 100% 0, 100% 100%, 0 100%, 0 var(--fold-size));
+  clip-path: polygon(0 0, calc(100% - var(--fold-size)) 0, 100% var(--fold-size), 100% 100%, var(--fold-size) 100%, 0 calc(100% - var(--fold-size)));
 }
 .editor-modal::before {
   content: '';
-  position: absolute; top: 0; left: 0;
+  position: absolute; top: 0; right: 0;
+  width: var(--fold-size); height: var(--fold-size);
+  background: linear-gradient(225deg, var(--fold-dark) 50%, transparent 50%);
+  z-index: 2; pointer-events: none;
+}
+.editor-modal::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0;
   border-style: solid;
-  border-width: var(--fold-size) var(--fold-size) 0 0;
-  border-color: var(--fold-dark) transparent transparent transparent;
+  border-width: 0 0 var(--fold-size) var(--fold-size);
+  border-color: transparent transparent var(--fold-dark) transparent;
   z-index: 2; pointer-events: none;
 }
 
@@ -784,7 +792,7 @@ button { cursor: pointer; font-family: var(--font-body); }
   background: var(--bg); border-radius: 22px;
   width: 90%; max-width: 380px;
   padding: 24px; box-shadow: var(--shadow-lg);
-  position: relative; margin-bottom: 48px;
+  position: relative;
   clip-path: polygon(0 0, calc(100% - var(--fold-size)) 0, 100% var(--fold-size), 100% 100%, 0 100%);
 }
 .small-modal::after {
@@ -972,6 +980,22 @@ button { cursor: pointer; font-family: var(--font-body); }
   .fab:active { box-shadow: var(--shadow-in); }
 
   .notes-container.view-grid { grid-template-columns: 1fr 1fr; }
+
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .editor-modal {
+    border-radius: 28px 28px 0 0;
+    max-height: 92vh;
+    clip-path: polygon(var(--fold-size) 0, 100% 0, 100% 100%, 0 100%, 0 var(--fold-size));
+  }
+  .editor-modal::before {
+    top: 0; right: auto; left: 0;
+    width: var(--fold-size); height: var(--fold-size);
+    background: linear-gradient(135deg, var(--fold-dark) 50%, transparent 50%);
+  }
+  .editor-modal::after { display: none; }
 
   .toast { bottom: 100px; }
 }

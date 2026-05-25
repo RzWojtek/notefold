@@ -198,10 +198,7 @@ function initEventListeners() {
   document.getElementById('user-modal-close').addEventListener('click', () => {
     document.getElementById('user-modal-overlay').classList.add('hidden');
   });
-  document.getElementById('user-modal-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('user-modal-overlay'))
-      document.getElementById('user-modal-overlay').classList.add('hidden');
-  });
+  // Kliknięcie tła NIE zamyka user modal
 
   // Logout
   document.getElementById('logout-btn').addEventListener('click', logout);
@@ -209,9 +206,7 @@ function initEventListeners() {
 
   // Editor
   document.getElementById('editor-close').addEventListener('click', closeEditor);
-  document.getElementById('editor-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('editor-overlay')) closeEditor();
-  });
+  // Kliknięcie tła NIE zamyka editora — tylko przyciski X i Zapisz
   document.getElementById('editor-save').addEventListener('click', saveNote);
 
   // Type selector
@@ -296,10 +291,7 @@ function initEventListeners() {
   document.getElementById('folder-modal-close').addEventListener('click', () => {
     document.getElementById('folder-modal-overlay').classList.add('hidden');
   });
-  document.getElementById('folder-modal-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('folder-modal-overlay'))
-      document.getElementById('folder-modal-overlay').classList.add('hidden');
-  });
+  // Kliknięcie tła NIE zamyka folder modal
   document.getElementById('folder-save-btn').addEventListener('click', saveFolder);
 
   // TODO
