@@ -149,6 +149,7 @@ function loadData() {
   notesRef.orderBy('createdAt', 'desc').onSnapshot(snap => {
     notes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderNotes();
+    renderFolders();   // odśwież liczniki przy każdej zmianie notatek
     renderCalendar();
   });
 
