@@ -924,7 +924,7 @@ button { cursor: pointer; font-family: var(--font-body); }
   .bottomnav {
     display: flex;
     align-items: flex-end; justify-content: space-around;
-    padding: 8px 16px 20px;
+    padding: 8px 8px 20px;
     background: var(--bg-dark);
     border-top: 1px solid rgba(0,0,0,0.07);
     flex-shrink: 0; z-index: 10;
@@ -932,7 +932,7 @@ button { cursor: pointer; font-family: var(--font-body); }
 
   .nav-item {
     display: flex; flex-direction: column; align-items: center; gap: 5px;
-    background: none; border: none; flex: 1;
+    background: none; border: none; flex: 1; min-width: 0;
   }
   .nav-icon-wrap {
     width: 42px; height: 42px; border-radius: 13px;
@@ -948,33 +948,34 @@ button { cursor: pointer; font-family: var(--font-body); }
     background: linear-gradient(225deg, var(--fold) 50%, transparent 50%);
   }
   .nav-icon-wrap svg { width: 20px; height: 20px; stroke: var(--text-muted); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  .nav-item span { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+  .nav-item span { font-size: 9px; color: var(--text-muted); font-weight: 500; white-space: nowrap; }
   .nav-item.active .nav-icon-wrap { box-shadow: var(--shadow-in); }
   .nav-item.active .nav-icon-wrap svg { stroke: var(--accent); }
   .nav-item.active span { color: var(--accent); font-weight: 700; }
 
-  /* FAB mobile */
+  /* FAB mobile — wyśrodkowany, wyższy od paska */
   .fab-desktop { display: none; }
   .fab-mobile {
     display: flex;
     align-items: center; justify-content: center;
+    flex: 1;
   }
   .fab {
-    width: 58px; height: 58px;
+    width: 56px; height: 56px;
     background: var(--bg);
-    border: none; border-radius: 20px;
+    border: none; border-radius: 18px;
     display: flex; align-items: center; justify-content: center;
     box-shadow: var(--shadow-lg);
-    margin-top: -20px;
-    position: relative;
-    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 0 100%);
+    margin-top: -22px;
+    position: relative; flex-shrink: 0;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
     transition: box-shadow 0.12s;
   }
   .fab::after {
     content: ''; position: absolute; top: 0; right: 0;
-    width: 15px; height: 15px;
+    width: 14px; height: 14px;
     background: linear-gradient(225deg, var(--fold-dark) 50%, transparent 50%);
-    border-radius: 0 20px 0 0;
+    border-radius: 0 18px 0 0;
   }
   .fab svg { stroke: var(--accent); fill: none; stroke-width: 2.5; stroke-linecap: round; }
   .fab:active { box-shadow: var(--shadow-in); }
